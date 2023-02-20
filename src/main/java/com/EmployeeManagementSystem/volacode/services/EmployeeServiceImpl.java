@@ -2,6 +2,7 @@ package com.EmployeeManagementSystem.volacode.services;
 
 import com.EmployeeManagementSystem.volacode.dtos.requests.AddEmployeeRequest;
 import com.EmployeeManagementSystem.volacode.dtos.response.AddEmployeeResponse;
+import com.EmployeeManagementSystem.volacode.dtos.response.UpdateEmployeeResponse;
 import com.EmployeeManagementSystem.volacode.exceptions.EmployeeManagerException;
 import com.EmployeeManagementSystem.volacode.exceptions.EmployeeNotFoundException;
 import com.EmployeeManagementSystem.volacode.models.Employee;
@@ -40,23 +41,28 @@ public class EmployeeServiceImpl implements  EmployeeService{
     }
 
     @Override
-    public void update( Long id,AddEmployeeRequest request) {
+    public UpdateEmployeeResponse update(Long id, AddEmployeeRequest request) {
+        Employee employeeToUpdate = employeeRepository.findById(id).orElseThrow( ()
+                -> new EmployeeNotFoundException(String.format("Employee with id %s not found ", request.getId())));
+        updateRequestBuilder(request, employeeToUpdate);
 
-    Optional<Employee> foundEmployee =employeeRepository.findById(id);
+        Employee updatedEmployee = employeeRepository.save(employeeToUpdate);
 
-    if(foundEmployee.isPresent()){
-
-        Employee employeeToUpdate =foundEmployee.get();
-        updateEmployee ( request,employeeToUpdate);
-employeeRepository.save(employeeToUpdate);
+        return updatedBuilderResponse(updatedEmployee);
     }
 
-    }
-
-    private void updateEmployee(AddEmployeeRequest request, Employee employeeToUpdate) {
-
+    private void updateRequestBuilder(AddEmployeeRequest request, Employee employeeToUpdate) {
+        employeeToUpdate.setFirstName(request.getFirstName());
+        employeeToUpdate.setLastName(request.getLastName());
+        employeeToUpdate.setEmail(request.getEmail());
         employeeToUpdate.setPhoneNumber(request.getPhoneNumber());
         employeeToUpdate.setGender(request.getGender());
+    }
+
+    private UpdateEmployeeResponse updatedBuilderResponse(Employee updatedEmployee) {
+        return UpdateEmployeeResponse.builder().id(updatedEmployee.getId())
+                .message(String.format("Employee with id %s updated Successfully",updatedEmployee.getId()))
+                .build();
     }
 
 

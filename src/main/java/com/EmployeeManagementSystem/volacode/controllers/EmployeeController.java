@@ -2,6 +2,7 @@ package com.EmployeeManagementSystem.volacode.controllers;
 
 
 import com.EmployeeManagementSystem.volacode.dtos.requests.AddEmployeeRequest;
+import com.EmployeeManagementSystem.volacode.exceptions.EmployeeNotFoundException;
 import com.EmployeeManagementSystem.volacode.exceptions.ResourceNotFoundException;
 import com.EmployeeManagementSystem.volacode.models.Employee;
 import com.EmployeeManagementSystem.volacode.repositories.EmployeeRepository;
@@ -35,15 +36,11 @@ public class EmployeeController {
     }
 
     @PutMapping("/update_employee/{id}")
-    public  ResponseEntity<?> updateEmployee(@PathVariable("id") Long id,@RequestBody AddEmployeeRequest request){
+    public  ResponseEntity<?> updateEmployee(@PathVariable("id") Long id, @RequestBody AddEmployeeRequest employeeRequest){
 
-        try {
-                employeeService.update(id,request);
-            return new ResponseEntity<>(String.format("Employee with id %s updated successfully", id),HttpStatus.OK);
-        }
-         catch (ResourceNotFoundException e){
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-         }
+
+            return ResponseEntity.status(HttpStatus.ACCEPTED).body(employeeService.update(id, employeeRequest));
+
     }
 
     @GetMapping("/employee/{id}")
